@@ -1,0 +1,1238 @@
+---
+title: "Building the Dream Chicago Bulls NBA Team"
+author: "Arulnesan Arunan U3234570"
+date: "09/05/2023"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    theme: cerulean
+    toc: yes
+    toc_float: yes
+---
+
+```{=html}
+<style type="text/css">
+  body{
+  font-size: 10pt;
+}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
+
+```{r, echo=FALSE,results='hide',warning=FALSE,message=FALSE}
+### Install necessary libraries as and if necessary
+#install.packages("knitr")
+library(knitr)
+#install.packages("tidyverse")
+library(tidyverse)
+#install.packages("rmarkdown")
+library(rmarkdown)
+#install.packages("broom")
+library(broom)
+#install.packages("GGally")
+library(GGally)
+
+```
+
+```{r, package_options, echo=FALSE, cache=FALSE, results='hide', warning=FALSE, comment=FALSE}
+### To remove the variable
+rm(list = ls())
+### To clear the console
+cat("\014")
+```
+
+
+# 1. Introduction:
+
+## Basketball Background Information:
+
+Basketball is a fast-paced physical sport, that requires players with unique skill set at each position to reach the highest level. There are five main positions in a team to begin with:
+
+-	Point Guard
+-	Shooting Guard
+-	Small Forward
+-	Power Forward
+-	Centre
+
+Each of the five positions on a basketball team has its unique requirements, with point guards typically focusing on ball-handling and play making, shooting guards on scoring, small forwards on versatility, power forwards on rebounding and interior scoring, and centres on defence and shot-blocking.
+
+In the context of the given assignment, the following key metrics are important to the positions as follows, idea behind it being the possibility of a player performing in multiple roles.
+
+-	For a PG: Any 2 of Passing/ Shooting/Defence
+-	For a SG:  Any 2 of Passing/ Shooting/Defence
+-	For a SF: Any 2 of Passing/Shooting/Defence
+-	For a PF: Any 2 of Passing/Rebound/Defence
+-	For a Centre: Any 2 of Rebound/Defence/Shooting
+
+While building a team, if we try to reciprocate the above criteria the chances of the team achieving success increase exponentially. Balancing shooting with passing and defence is crucial in a team’s line-up. There is an iconic saying by Sir Alex Ferguson in English Football: ATTACK WINS GAMES, DEFENCE WINS TITLES. This can be applied to the game of basketball as well.
+
+
+## Description of Scenario:
+
+As a data analyst for the Chicago Bulls, the task is to find the best starting five players (one from each position) for the upcoming NBA season while staying within the team's budget of $118 million for player contracts. The team's budget is ranked 26th out of 30 teams, which means that the team has limited financial resources compared to other teams in the league. Moreover, the team's performance in the previous season was not satisfactory, as they ranked 27th out of 30 teams based on win-loss record.
+
+To complete this task, a thorough analysis of the players on the team and potential players from outside the team. The analysis took into account their performance in the previous season, their strengths and weaknesses, their fit within the team's playing style and their value for money. 
+
+The repository contains a reproducible data analysis project and a generated knitr report using R Markdown. This report includes details of the analysis process, the selection criteria for the starting five players, and the performance metrics used to evaluate each player. Specific player recommendations for the team within the budget has also been provided.
+
+## Project Aim:
+
+The main of the project is to build a starting line-up for Chicago Bulls in the 2019-20 NBA season with the given salary cap, while leaving a room for accommodating the bench players as well to achieve maximum results.
+
+
+## d) justification and importance
+
+The project involves selecting one player for each position, ensuring their combined salaries do not exhaust the entire budget, and proving their value to the team. The project will involve analysing players' performances based on key metrics, evaluating their fit within the team's playstyle, and determining the most cost-effective options. A team can sign 2-3 players with more value, but the rest of the players can be signed with minimum contracts such as Veteran minimum contract, Rookie contract, etc., as long as they can to adapt to the team in delivering performance to the maximum extent with their skill set. 
+
+The justification and importance of this project lie in the potential impact of an optimized starting line-up on the team's overall performance. By identifying the most valuable players within the budget constraints, the Chicago Bulls can enhance their competitiveness in the league and improve their chances of securing a higher standing in the 2019-20 season. This analysis will also provide valuable insights into the most effective strategies for allocating resources in a salary-capped professional sports league.
+
+
+# 2. Reading and Cleaning Data:
+
+Loading and understanding the data,
+
+## Data set descriptions and variable descriptions
+
+The datasets used are chosen for the below sources directly
+
+1. 2018-19_nba_player-statistics.csv :  sourced from basketball-reference.com 
+
+2. 2018-19_nba_player-salaries.csv :  sourced from hoopshype.com/salaries 
+
+3. 2019-20_nba_team-payroll.csv : sourced from hoopshype.com/salaries 
+
+4. 2018-19_nba_team-statistics_1.csv : sourced from basketball-reference.com 
+
+5. 2018-19_nba_team-statistics_2.csv : sourced from basketball-reference.com
+
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### reading the dataframe
+player_statistics <- read.csv("data/raw/2018-19_nba_player-statistics.csv")
+
+### Viewing the dataframe and the top 5 rows of the data frame
+# View(player_statistics)
+head(player_statistics, 5)
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Viewing the different data variables and data structures
+# str(player_statistics)
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### reading the dataframe
+player_salaries <- read.csv("data/raw/2018-19_nba_player-salaries.csv")
+
+### Viewing the dataframe and the top 5 rows of the data frame
+# View(player_salaries)
+head(player_salaries, 5)
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Viewing the different data variables and data structures
+# str(player_salaries)
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### reading the dataframe
+team_statistics_1 <- read.csv("data/raw/2018-19_nba_team-statistics_1.csv")
+
+### Viewing the dataframe and the top 5 rows of the data frame
+# View(team_statistics_1)
+head(team_statistics_1, 5)
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Viewing the different data variables and data structures
+# str(team_statistics_1)
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### reading the dataframe
+team_statistics_2 <- read.csv("data/raw/2018-19_nba_team-statistics_2.csv")
+
+### Viewing the dataframe and the top 5 rows of the data frame
+# View(team_statistics_2)
+head(team_statistics_2, 5)
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Viewing the different data variables and data structures
+# str(team_statistics_2)
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### reading the dataframe
+team_payroll <- read.csv("data/raw/2019-20_nba_team-payroll.csv")
+
+### Viewing the dataframe and the top 5 rows of the data frame
+# View(team_payroll)
+head(team_payroll, 5)
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Viewing the different data variables and data structures
+# str(team_payroll)
+
+```
+
+
+# 3. Exploratory analysis
+
+## a) checking for errors and missing values within the datasets
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+if (sum(colSums(is.na(player_statistics)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe player_statistics are: ")
+  print(names(subset(colSums(is.na(player_statistics)), colSums(is.na(player_statistics)) > 0)))
+} else {
+       print("No NAs in the dataframe player_statistics")
+  } 
+
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Plotting the NA Percentages for NA columns in player_statistics dataframe
+
+na_summary_player_statistics <- player_statistics %>% gather(key = "Variable_Name", value = "Value", everything()) %>% 
+  group_by(Variable_Name) %>% 
+  summarise(NA_percent = sum(is.na(Value))/nrow(player_statistics)*100) %>% 
+  filter(NA_percent > 0) %>% 
+  arrange(desc(NA_percent)) %>% 
+  ggplot(mapping = aes(x=reorder(Variable_Name, -NA_percent), y=NA_percent))+
+  geom_bar(stat = "Identity", fill = "deepskyblue3", color = "navy")+
+  geom_text(aes(label = round(NA_percent,1)), vjust = -0.2, size = 3.3)+
+  ggtitle("NA Percent vs Variables")+
+  xlab("Variable Names")+
+  ylab("NA_Percent (%)")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 1, vjust = 0.5),
+        legend.title = element_text(size = 10))
+
+### Print na_summary plot
+na_summary_player_statistics
+
+```
+
+Dealing with NAs in player_statistics dataframe.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### printing the number of unique player names in player_statistics dataframe
+length(unique(player_statistics$player_name))
+
+```
+
+We can observe that player_statistics dataframe has 530 unique player names but where as overall there are 708 observations indicating duplicate names. The Duplicate names are due to the reason of players getting transfered or trading during the season. 
+
+To rectify this while inspecting the observations, the last duplicate name appears to have the cumulative metrics for that player during the season. Therefore a simple filtering using maximum number of players will give us the final metrics.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### dealing with NA values in player_statistics
+player_statistics_filtered <- player_statistics %>% group_by(player_name) %>% filter(G == max(G))
+
+player_statistics_filtered
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+if (sum(colSums(is.na(player_statistics_filtered)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe player_statistics_filtered are: ")
+  print(names(subset(colSums(is.na(player_statistics_filtered)), colSums(is.na(player_statistics_filtered)) > 0)))
+} else {
+       print("No NAs in the dataframe player_statistics_filtered")
+  } 
+
+
+```
+
+NA values still exist, all the columns seems to be calculation columns based on other variables. Checking if all the denominators for these calculations are Zero which is leading to NAs
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+player_statistics_filtered %>% filter(!complete.cases(FG.)) %>% ungroup() %>% 
+  summarise(FGA_Denominator_Sum = sum(FGA))
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+player_statistics_filtered %>% filter(!complete.cases(X3P.)) %>% ungroup() %>% 
+  summarise(X3PA_Denominator_Sum = sum(X3PA))
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+player_statistics_filtered %>% filter(!complete.cases(X2P.)) %>% ungroup() %>% 
+  summarise(X2PA_Denominator_Sum = sum(X2PA))
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+player_statistics_filtered %>% filter(!complete.cases(eFG.)) %>% ungroup() %>% 
+  summarise(FGA_Denominator_Sum = sum(FGA))
+
+```
+
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+player_statistics_filtered %>% filter(!complete.cases(FT.)) %>% ungroup() %>% 
+  summarise(FT_Denominator_Sum = sum(FT))
+
+```
+
+The denominators are causing the NAs in th player_statistics_filtered dataframe imputing the NAs with Zeros will be an appropriate measure.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### imputing with Zero
+player_statistics_filtered <- replace(player_statistics_filtered, is.na(player_statistics_filtered), 0)
+
+### Checking NAs again
+if (sum(colSums(is.na(player_statistics_filtered)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe player_statistics_filtered are: ")
+  print(names(subset(colSums(is.na(player_statistics_filtered)), colSums(is.na(player_statistics_filtered)) > 0)))
+} else {
+       print("No NAs in the dataframe player_statistics_filtered")
+  } 
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+if (sum(colSums(is.na(player_salaries)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe player_salaries are: ")
+  print(names(subset(colSums(is.na(player_salaries)), colSums(is.na(player_salaries)) > 0)))
+} else {
+       print("No NAs in the dataframe player_salaries")
+  } 
+
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+if (sum(colSums(is.na(team_statistics_1)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe team_statistics_1 are: ")
+  print(names(subset(colSums(is.na(team_statistics_1)), colSums(is.na(team_statistics_1)) > 0)))
+} else {
+       print("No NAs in the dataframe team_statistics_1")
+  } 
+
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Plotting the NA Percentages for NA columns in team_statistics_1 dataframe
+
+na_summary_team_statistics_1 <- team_statistics_1 %>% gather(key = "Variable_Name", value = "Value", everything()) %>% 
+  group_by(Variable_Name) %>% 
+  summarise(NA_percent = sum(is.na(Value))/nrow(team_statistics_1)*100) %>% 
+  filter(NA_percent > 0) %>% 
+  arrange(desc(NA_percent)) %>% 
+  ggplot(mapping = aes(x=reorder(Variable_Name, -NA_percent), y=NA_percent))+
+  geom_bar(stat = "Identity", fill = "deepskyblue3", color = "navy")+
+  geom_text(aes(label = round(NA_percent,1)), vjust = -0.2, size = 3.3)+
+  ggtitle("NA Percent vs Variables")+
+  xlab("Variable Names")+
+  ylab("NA_Percent (%)")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 1, vjust = 0.5),
+        legend.title = element_text(size = 10))
+
+### Print na_summary plot
+na_summary_team_statistics_1
+
+```
+
+As these are full columns and upon inspecting these are the last three columns. They can simply be removed through slicing.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### dealing with NA values in team_statistics_1 , selecting only the columns without NAs
+team_statistics_1 <- team_statistics_1 %>% select(Rk:DRB.)
+
+### Checking NAs again
+if (sum(colSums(is.na(team_statistics_1)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe team_statistics_1 are: ")
+  print(names(subset(colSums(is.na(team_statistics_1)), colSums(is.na(team_statistics_1)) > 0)))
+} else {
+       print("No NAs in the dataframe team_statistics_1")
+  } 
+
+```   
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+if (sum(colSums(is.na(team_statistics_2)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe team_statistics_2 are: ")
+  print(names(subset(colSums(is.na(team_statistics_2)), colSums(is.na(team_statistics_2)) > 0)))
+} else {
+       print("No NAs in the dataframe team_statistics_2")
+  } 
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+if (sum(colSums(is.na(team_payroll)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe team_payroll are: ")
+  print(names(subset(colSums(is.na(team_payroll)), colSums(is.na(team_payroll)) > 0)))
+} else {
+       print("No NAs in the dataframe team_payroll")
+  } 
+
+```
+
+
+Merging the dataframes of salary and statistics together. 
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### adding player salaries to player statistics data frame
+player_statistics_salary_combined <- merge(player_statistics_filtered, player_salaries, by = 'player_name')
+
+```
+
+
+As team payroll dataframe's salary colum is of data type character, converting it to numeric. 
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### converting the team_payroll salary column to a numeric variable
+team_payroll$salary <- as.numeric(gsub("[//$,]", "", team_payroll$salary))
+
+```
+
+
+Writing all the dataframes to processed folder
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### writing dataframes to processed folder inside data folder
+
+write_csv(player_statistics_salary_combined, 
+          file = "data/processed/player_statistics_salary.csv")
+
+write_csv(team_payroll, 
+          file = "data/processed/team_payroll.csv")
+
+```
+
+All other dataframes were free from error.
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Checking NAs again
+
+if (sum(colSums(is.na(player_statistics_salary_combined)) > 0) >= 1) {
+  print("The Variables with NAs in dataframe player_statistics_salary_combined are: ")
+  print(names(subset(colSums(is.na(player_statistics_salary_combined)), colSums(is.na(player_statistics_salary_combined)) > 0)))
+} else {
+       print("No NAs in the dataframe player_statistics_salary_combined")
+  } 
+
+
+```
+
+
+
+## b) checking the distribution of variables
+
+### NBA Player Salary Distribution
+
+Firstly checking the salary distribution of NBA players.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Plotting the distribution of Player Salaries
+salary_histogram <- player_statistics_salary_combined %>% 
+  ggplot(mapping = aes(salary, fill = ..count..))+
+  geom_histogram(color = "black")+
+  scale_fill_continuous(name = "Number of Players")+
+  ylab("Number of Players")+
+  xlab("Salary ($)")+
+  ggtitle("Player Salary Histogram")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 0.5, vjust = 1),
+        legend.title = element_text(size = 10))
+
+### Printing the Player Salary Histogram to Screen
+salary_histogram
+
+```
+
+We can observe that the distribution is skewed to the right due to few excellent players. This is a usual observance for a monetary variable describing prices/value/salary. Eg. Housing Prices do show a similar distribution.
+
+### NBA Teams Payroll Distribution (Histogram)
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Plotting the distribution of Team Payroll
+team_payroll_histogram <- team_payroll %>% 
+  ggplot(mapping = aes(salary, fill = ..count..))+
+  geom_histogram(color = "black", bins = 15)+
+  scale_fill_continuous(name = "Number of Teams")+
+  ylab("Number of Teams")+
+  xlab("Payroll ($)")+
+  ggtitle("Team Payroll Histogram")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 0.5, vjust = 1),
+        legend.title = element_text(size = 10))
+
+### Printing the Team Payroll Histogram to Screen
+team_payroll_histogram
+
+```
+
+We can observe that the histogram for team payrolls are normally distributed indicating a fair competition. 
+
+### NBA Teams Payroll Bar Charts
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+# Sort data frame in descending order of salary and add a new column called "highlight"
+team_payroll_sorted <- team_payroll %>%
+  arrange(desc(salary)) %>%
+  mutate(highlight = ifelse(team == "Chicago ", "red", "lightblue"))
+
+# Create ggplot2 visualization
+ggplot(team_payroll_sorted, aes(x = reorder(team, salary), y = salary, fill = highlight)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(x = "Team", y = "Salary", title = "2019-20 NBA Team Payroll") +
+  theme_minimal() +
+  scale_fill_identity(guide = FALSE)
+
+```
+
+We can observe that Chicago Bulls are near the bottom with respect to payroll budgets. This indicates that its at a disadvantage and therefore it needs to be out of the box with respect to player recruitment. 
+
+### NBA Player Age Distribution
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### age distribution
+age_distribution_plot <- player_statistics_salary_combined %>% group_by(Age) %>% 
+  summarise(Count = n()) %>%
+  ggplot(mapping = aes(x = Age, y = Count))+
+  geom_line(color = "deepskyblue3")+
+  geom_point(color = "deepskyblue3")+  
+  ggtitle("NBA Player Age Distribution")+
+  ylab("NBA Player Counts")+
+  xlab("Age")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 1, vjust = 1),
+        legend.title = element_text(size = 10))
+
+  
+  
+### Print median_building_type_house_price_yearly plot
+age_distribution_plot
+
+```
+
+### NBA Player Playing Positions Count Distribution
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Playing Position Counts
+
+playing_positions_distributionn_plot <- player_statistics_salary_combined %>% group_by(Pos) %>% 
+  summarise(Count = n()) %>% 
+  ggplot(mapping = aes(x=reorder(Pos, -Count), y=Count))+
+  geom_bar(stat = "Identity", fill = "navy", color = "navy")+
+  geom_text(aes(label = Count), vjust = -0.2, size = 3.3)+
+  ggtitle("NBA Playing Positions Distribution")+
+  xlab("Playing Positions")+
+  ylab("Player Counts")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 0.5, vjust = 0.5),
+        legend.title = element_text(size = 10))
+
+
+playing_positions_distributionn_plot
+
+```
+
+### Playing Postions Age Distributions
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Playing Positions and Age Distributions
+playing_positions_age_distribution_plot <- player_statistics_salary_combined %>% 
+  filter(Pos %in% c("SG", "PF", "PG", "C", "SF")) %>% 
+  group_by(Age, Pos) %>% 
+  summarise(Count = n()) %>%
+  ggplot(mapping = aes(x = Age, y = Count, color = Pos))+
+  geom_line()+
+  geom_point()+  
+  ggtitle("NBA Player Age Distribution")+
+  ylab("NBA Player Counts")+
+  xlab("Age")+
+  facet_wrap(~Pos, nrow = 2)+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 1, vjust = 1),
+        legend.title = element_text(size = 10))
+
+### Print median_building_type_house_price_yearly plot
+playing_positions_age_distribution_plot
+
+```
+
+### Distribution of Positionwise Mean Points Scored
+
+This distribution will show us which playing position is on average contributing the highest.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Position Wise Points Scored
+
+position_points_distribution_plot <- player_statistics_salary_combined %>% 
+  filter(Pos %in% c("SG", "PF", "PG", "C", "SF")) %>% 
+  group_by(Pos) %>% 
+  summarise(Mean_Points = round(mean(PTS),2)) %>%
+  ggplot(mapping = aes(x=reorder(Pos, -Mean_Points), y=Mean_Points))+
+  geom_bar(stat = "Identity", fill = "navy", color = "navy")+
+  geom_text(aes(label = Mean_Points), vjust = -0.2, size = 3.3)+
+  ggtitle("NBA Position Wise Points Distribution")+
+  xlab("Playing Positions")+
+  ylab("Mean Points Scored Per Season")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 0.5, vjust = 0.5),
+        legend.title = element_text(size = 10))
+
+
+
+position_points_distribution_plot
+
+```
+
+### c) checking for relationships between variables, or differences between groups
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### filtering the top 3 ranked teams to identify the best teams metrics
+team_statistics_2 %>% filter(Rk == c(1,2,3)) %>% select(c(Rk, Team, FG., X3P., X2P., FT., PF, PTS)) 
+
+```
+
+We can see that Golden State Warriors had a better shooting record than Milwaukee Bucks. 
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### looking at the best players from the best teams
+player_statistics_salary_combined %>% filter(Tm %in% c("MIL", "GSW", "ORL")) %>% select(c(player_name, Tm, Pos, FG., X3P., X2P., FT., PF, PTS)) %>% arrange(desc(PTS))
+
+```
+
+we can see that overall points of 9686 was scored by the championship team Milwaukee Bucks. 
+We can also notice that they had significantly less personal fouls
+Even though Golden State had better FG. they were close second.
+Overall highest points doesn't ensure a championship however scoring the most points is an indication of a very good team
+
+We'll explore the relationship for Points and identify its explanatory main variables
+We'll perform a simple correlation plot to identify the most contributing variables expectations are for FG. , X3P., X2P. and FT. to have positive relationship with Points. 
+
+Based on a quick research following metrics are important,
+
+- Scoring: A player's ability to score points is one of the most important factors in their overall performance. This can be measured by factors such as points per game, shooting percentage, and usage rate.
+
+- Rebounding: Rebounding is another important factor in a player's overall performance. This includes both offensive and defensive rebounding, as well as the ability to create second-chance opportunities for their team.
+
+- Defense: A player's defensive abilities are also critical to their overall performance. This includes factors such as steals, blocks, and defensive rebounds, as well as their ability to guard opposing players effectively.
+
+- Assists: Assists measure a player's ability to create scoring opportunities for their teammates. A high number of assists can indicate that a player is an effective passer and facilitator on the court.
+
+- Efficiency: Efficiency measures how effectively a player uses their possessions to contribute to their team's success. This can be measured by factors such as field goal percentage, true shooting percentage, and player efficiency rating.
+
+- Versatility: Players who are able to contribute in multiple areas of the game, such as scoring, rebounding, and defense, are highly valuable to their teams.
+
+It's important to note that no single factor can determine a player's overall skill and performance. Rather, a combination of factors must be considered to assess a player's overall value to their team.
+
+
+Based on research it can be noted that maximizing the points per game can improve the chances of winning a championship factors such as,
+- FG.
+- X3P.
+- X2P.
+- FT.
+- TRB per game (TRBpG)
+- AST per game (ASTpG)
+- STL per game (STLpG)
+- BLK per game (BLKpG)
+- TOV per game (TOVpG)
+- PF per game (PFpG)
+
+PTSpG stands for Points per Game and all other variables directly mean as per the data description provided under introduction.
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### creating a separate dataframe for modelling variables
+model_dataframe <- team_statistics_2 %>% group_by(Team) %>% mutate(PTSpG = PTS/G,
+                                                                   TRBpG = TRB/G,
+                                                                   ASTpG = AST/G,
+                                                                   STLpG = STL/G,
+                                                                   BLKpG = BLK/G,
+                                                                   TOVpG = TOV/G,
+                                                                   PFpG = PF/G) %>% 
+  ungroup() %>% 
+  select(PTSpG, FG., X3P., X2P., FT., TRBpG, ASTpG, STLpG, BLKpG, TOVpG, PFpG)
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### plotting the correlation plots
+ggcorr(model_dataframe, 
+       label = TRUE, 
+       label_size = 3, 
+       hjust = 0.5)
+
+```
+
+We can see that FG. is highly correlated with other shooting metrics which form it.
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+
+### Inspecting the relationship between PTSpG and FG.
+scatter_plot_PTSpG_vs_FG. <- model_dataframe %>% ggplot(mapping = aes(x=FG., y=PTSpG))+
+  geom_point(alpha = 1)+
+  geom_smooth(method = "lm", color = "blue")+
+  scale_y_continuous(labels = scales::comma)+
+  ylab("PTSpG")+
+  xlab("FG. (%)")+
+  ggtitle("PTSpG vs FG.")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 0.5, vjust = 1),
+        legend.title = element_text(size = 10))
+
+### Print scatter_plot
+scatter_plot_PTSpG_vs_FG.
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+
+### Inspecting the relationship between PTSpG and X2P.
+scatter_plot_PTSpG_vs_X2P. <- model_dataframe %>% ggplot(mapping = aes(x=X2P., y=PTSpG))+
+  geom_point(alpha = 1)+
+  geom_smooth(method = "lm", color = "blue")+
+  scale_y_continuous(labels = scales::comma)+
+  ylab("PTSpG")+
+  xlab("X2P. (%)")+
+  ggtitle("PTSpG vs X2P.")+
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0),
+        axis.title.x = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.y = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.text.y = element_text(size = 10, face = "bold", hjust = 0.5),
+        axis.text.x = element_text(angle = 0, size = 10, face = "bold", hjust = 0.5, vjust = 1),
+        legend.title = element_text(size = 10))
+
+### Print scatter_plot
+scatter_plot_PTSpG_vs_X2P.
+
+```
+
+We can see that both are showing a similar pattern which might indicate confounding problem. 
+
+
+# 4. Data modelling and results
+
+## a) data modelling (e.g. creating a linear regression)
+
+### Methodology
+
+- The approach to be followed is to use the teams data to build a model to predict the points per game
+- The built model will then be tested for multiple linear model assumptions 
+- Any dataset corrections will be made and then model will be refit and the failed assumptions will be checked again
+- Once the final model which satisfies assumptions are produced. Team player metrics will be used to predict expected points per player. 
+- Then the model output dataframe will be filtered and using the predicted expected points per player, salary and one other position specific metric. The common intersection of players will be found and then chosen for the Chicago Bulls Team accordingly. 
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Building a multiple linear model for PTSpG
+fit <- lm(PTSpG ~ FG.+X3P.+X2P.+FT.+TRBpG+ASTpG+STLpG+BLKpG+TOVpG+PFpG, data = model_dataframe)
+
+### Viewing the model results
+tidy(fit, conf.int = TRUE)
+
+```
+
+except for X2P. all other predictors seem to have high p-values indicating significantly indifferent from zero at 5% confidence.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+summary(fit)
+
+```
+
+However overall the model has 0.7654 adj R-squared which indicates the combined explanatory power for PTSpG
+
+
+## b) Checking For Model Assumptions
+
+**Assumptions**
+The response variable should be continuous (i.e. ratio/interval)
+There are two or more explanatory variables that are either continuous or categorical
+There should be independence of observations
+There should be a linear relationship between the response variable and each explanatory variable
+There should be no significant outliers, influential or high leverage points
+The data needs to show homoscedasticity
+The residuals should be normally distributed
+There should not be multicollinearity between the explanatory variables
+
+
+### Independence
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+car::durbinWatsonTest(fit)
+
+```
+
+Residuals are not autocorrelated with the DW test the results are 1.65, which is close to the recommended 2 to ensure independence. Thus we have not failed this assumption. 
+
+### Outliers
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+# residuals computation 
+standard_residuals <- rstandard(fit)
+points <- 1:length(standard_residuals)
+
+ggplot(data = NULL, aes(x = points, y = standard_residuals)) +
+  geom_point() +
+  ylim(c(-4,4)) +
+  geom_hline(yintercept = c(-3, 3), colour = "red", linetype = "dashed")
+
+
+
+```
+
+We can observe that most observations are within the norm. therefore there are no outliers.
+
+
+### Leverage points
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### computing hat values and plotting
+hats <- hatvalues(fit)
+
+ggplot(data = NULL, aes(x = points, y = hats)) +
+  geom_point()
+
+```
+
+there are no hatvalues greater than 1, however we might investigate the points above 0.6 as they seem to stick out above the rest. 
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### labelling the hat values
+hat_labels <- if_else(hats >= 0.6, paste(points), "")
+
+ggplot(data = NULL, aes(x = points, y = hats)) +
+  geom_point() +
+  geom_text(aes(label = hat_labels), nudge_y = 0.005)
+
+
+```
+
+The 11th and 12th observations are leverage points
+
+### Influential points
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### computing cook distance and plotting
+cook <- cooks.distance(fit)
+
+ggplot(data = NULL, aes(x = points, y = cook)) +
+  geom_point()
+
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### labelling the influential points
+cook_labels <- if_else(cook >= 0.2, paste(points), "")
+
+ggplot(data = NULL, aes(x = points, y = cook)) +
+  geom_point() +
+  geom_text(aes(label = cook_labels), nudge_x = 2)
+
+```
+
+Again obseravtion point 12 is repeated
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### removing the 11th and 12th observations from the model dataframe
+filtered_model_dataframe <- model_dataframe[-c(11:12),]
+
+```
+
+
+Building a new model with the removed points to check for any improvements
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Building the second multiple linear model for PTSpG
+fit_2 <- lm(PTSpG ~ FG.+X3P.+X2P.+FT.+TRBpG+ASTpG+STLpG+BLKpG+TOVpG+PFpG, data = filtered_model_dataframe)
+
+### viewing the summary results
+summary(fit_2)
+
+
+```
+
+We can observe that there is a slight improvement in the Adj R-Squared.
+
+### Homoscedasticity.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### plotting the data for homescedasticity
+res <- residuals(fit)
+fitted <- predict(fit)
+
+ggplot(data = NULL, aes(x = fitted, y = res)) +
+  geom_point(colour = "dodgerblue") + 
+  geom_hline(yintercept = 0, colour = "red", linetype = "dashed")
+
+```
+
+There does not appear to be evidence of heteroscedasticity, therefore the data is homoscedastic. 
+
+
+### Normality.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### plotting the residuals to confirm normal distribution
+ggplot(data = NULL, aes(x = res)) +
+  geom_histogram(colour = "black", fill = "dodgerblue", binwidth = 1)
+
+```
+
+Histogram looks fairly normal, some long tails though at either end
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Using the QQ plot to check for normality as well
+ggplot(data = NULL, aes(sample = res)) +
+  stat_qq() + stat_qq_line()
+
+```
+
+Observations lie roughly along the line.
+
+
+### Linearity
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### using avPlots for checking linearity
+car::avPlots(fit)
+
+```
+
+### Multicollinearity - Visual
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Plotting for the first few variables
+pairs(formula = ~ FG. + X3P. + X2P. + FT. , data = model_dataframe)
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Plotting for the remaining variables
+pairs(formula = ~ TRBpG + ASTpG + STLpG + BLKpG + TOVpG + PFpG , data = model_dataframe)
+
+```
+
+### Multicollinearity - Statistical
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Using the vif function from car library
+car::vif(fit_2)
+
+```
+
+Based on the above results we can clearly observe there are values which are greater than 1 therefore there exisits multicollinearity in the variables
+
+From coorelation plot above and VIF measures above we understood that FG., X3P., ASTpG, TOVpG and PFpg have high multicollinearity (X3P. was removed instead of X2P. because X2P. had higher explanatory significance in previous models)
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### Building the third and final multiple linear model for PTSpG
+fit_3 <- lm(PTSpG ~ X2P.+ FT.+ TRBpG + STLpG + BLKpG, data = filtered_model_dataframe)
+
+### Viewing the summary
+summary(fit_3)
+
+```
+
+This model has an acceptable R-Squared and further the P-Values for the predictors indicate that they are significantly different from Zero. Especially X2P., FT., TRBpG and STLpG.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### checking for any remaining multicollinearity
+car::vif(fit_3)
+
+```
+
+
+All vif values are quite close to 1 (some are close to 2) so does not appear to be any multicollinearity influencing the standard errors of the coefficients much better than previous models.
+
+
+## c) model output and interpretation of your model
+
+
+
+# 5. Player recommendations
+
+## Background for player selection
+
+In basketball, "per-possession" or "per-100 possessions" is a statistic akin to "per-plate-appearance" in baseball. Because basketball games often feature many more possessions than plate appearances in baseball, adjusting statistics on a per-possession basis rather than a per-game one is more suitable. 1.
+
+Even if the two teams have identical levels of skill, a team that plays at a fast tempo and has many possessions per game will generally have greater statistics than a team that plays at a slow pace and has fewer possessions per game. Adjusting statistics on a possession-by-possession basis provides for more accurate team comparisons. 1. 2.
+
+Individual player statistics in basketball are frequently adjusted to per-100 possessions to accommodate for variances in pace and playing time between players. This enables more precise comparisons of player performance. 2.
+
+
+These are some measures that can be used in basketball to compare the performance of a team or a player.
+
+True shooting percentage: This is a shooting efficiency metric that accounts for field goals, 3-point field goals, and free throws. It is determined by dividing the total number of points scored by the total number of field goals, 3-point field goals, and free throw attempts.
+
+Rebounding rate: The number of rebounds a team or player receives per possession. The total number of rebounds is divided by the total number of possessions.
+
+Turnover rate: The number of turnovers committed by a team or player each possession. The total number of turnovers divided by the total number of possessions yields this figure.
+
+Steal rate: The number of steals a team or player gets each possession. The total number of steals divided by the total number of possessions yields this figure.
+
+Efficiency: measurement of how many points a team or individual scores per possession. It is computed by dividing the total number of possessions by the total number of points scored.
+
+Assist rate: This is a metric that measures how many assists a team or player receives per possession. The total number of assists divided by the total number of possessions yields this figure.
+
+
+These measurements, in addition to scoring, can help to present a more full picture of team or player performance by taking into consideration elements such as efficiency, rebounding, and turnovers. 1. 2.
+
+
+## Player PTSpG Model Generation 
+
+Calculating the metrics for each player to predict the points they would score if all the players in the team was that single player
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### creating player model dataframe to fit to the model fit_3 
+player_model_data <- player_statistics_salary_combined %>% mutate(TRBpG = TRB/G,
+                                                                  STLpG = STL/G,
+                                                                  BLKpG = BLK/G) %>% 
+  select(c(X2P., FT., TRBpG, STLpG, BLKpG))
+
+player_statistics_salary_combined <- player_statistics_salary_combined %>% 
+  mutate(exp_PTSpG = predict(fit_3, newdata = player_model_data))
+
+```
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+### looking at the distribution for predictions PTSpG
+player_statistics_salary_combined %>%
+  ggplot(aes(x = exp_PTSpG)) +
+  geom_histogram(binwidth = 5, colour = "black", fill = "dodgerblue")
+
+```
+
+We can roughly see that the predictions are normal with a left skew.
+
+
+## Getttin the playing positions which are unique in the dataframe
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+
+unique(player_statistics_salary_combined$Pos)
+
+
+```
+
+## PG - Choosing a player for Point Guard
+
+Using expected PTSpG and mean number of minutes played, the list of players in descending order are.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+PG_players <- player_statistics_salary_combined %>% filter( Pos %in% c("PG")) %>% 
+  filter(MP > quantile(player_statistics_salary_combined$MP, 0.75)) %>% 
+  select(c(player_name, Pos, Age, MP, Tm, salary, exp_PTSpG)) %>% 
+  arrange(desc(exp_PTSpG))
+
+PG_players
+
+```
+
+The following table shows the % of the total cap used by the league leaders  for their starting lineup. Based on this, it is safe to assume that the top teams spent major portion of their salary cap in 2-3 big named players and the rest of the team is filled using veterans, rookies, etc.,
+
+During the 2018/19 NBA season, the Warriors had a total budget of USD 146,291,276, with their starting 5 players accounting for USD 92,915,444, which is 63.51% of the total cap. The Bucks had a total budget of USD 130,988,604, with their starting 5 players accounting for USD 83,657,304, which is 63.87% of the total cap. The Bulls had a total budget of USD 112,598,201, with their starting 5 players accounting for USD 79,627,159, which is 70.72% of the total cap. 3.
+
+For an overall budget of 65% of the total budget or USD 118 Mn. For the top 5 players 
+we will spend a cumulative USD 76.7 Mn. 
+Based on an average player spend of USD 15.2 Mn the player suited for PG will be
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+PG_players %>% filter(salary<15200000) %>% top_n(1)
+
+```
+
+Therefore remaining budget after purchasing this player will be USD 61 Mn
+
+
+## SG - Choosing a player for Shooting Guard
+
+Using expected PTSpG and mean number of minutes played, the list of players in descending order are.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+
+SG_players <- player_statistics_salary_combined %>% filter( Pos %in% c("SG","SF-SG", "SG-SF", "SG-PF" )) %>% 
+  filter(MP > quantile(player_statistics_salary_combined$MP, 0.75)) %>% 
+  select(c(player_name, Pos, Age, MP, Tm, salary, exp_PTSpG)) %>% 
+  arrange(desc(exp_PTSpG))
+
+SG_players
+
+
+```
+
+Based on the above dataframe and existing budget, the player with a proven track record and flexibility to play two positions is Jimmy Butler. 
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+SG_players[6,]
+
+```
+
+Therefore remaining budget after purchasing this player will be USD 41.16 Mn
+
+# SF - Choosing a player for Small Forward
+
+Using expected PTSpG and mean number of minutes played, the list of players in descending order are.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+
+SF_players <- player_statistics_salary_combined %>% filter( Pos %in% c("SF","PF-SF", "SF-SG", "SG-SF")) %>% 
+  filter(MP > quantile(player_statistics_salary_combined$MP, 0.75)) %>% 
+  select(c(player_name, Pos, Age, MP, Tm, salary, exp_PTSpG)) %>% 
+  arrange(desc(exp_PTSpG))
+
+SF_players
+
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+SF_players %>% filter(salary<15200000 & salary > 12000000) %>% top_n(1)
+
+```
+
+Therefore remaining budget after purchasing this player will be USD 28.16 Mn
+
+
+# PF - Choosing a player for Power Forward
+
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+
+PF_players <- player_statistics_salary_combined %>% filter( Pos %in% c("PF","PF-SF", "PF-C", "SG-PF", "C-PF")) %>% 
+  filter(MP > quantile(player_statistics_salary_combined$MP, 0.75)) %>% 
+  select(c(player_name, Pos, Age, MP, Tm, salary, exp_PTSpG)) %>% 
+  arrange(desc(exp_PTSpG))
+
+PF_players
+
+
+```
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+PF_players %>% filter(salary<15200000 ) %>% top_n(1)
+
+```
+
+Therefore remaining budget after purchasing this player will be USD 26.62 Mn
+
+# C - Choosing a player for Centre
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+
+C_players <- player_statistics_salary_combined %>% filter( Pos %in% c("C", "PF-C", "C-PF")) %>% 
+  filter(MP > quantile(player_statistics_salary_combined$MP, 0.75)) %>% 
+  select(c(player_name, Pos, Age, MP, Tm, salary, exp_PTSpG)) %>% 
+  arrange(desc(exp_PTSpG))
+
+C_players
+
+
+```
+
+We are gonna use the entire remaining budget to obtain a Centre player with reputed playmaking.
+
+```{r , echo=TRUE,results='show',message=FALSE,warning=FALSE}
+C_players[8,]
+
+```
+
+
+# 6. Summary 
+
+For this project, I was given the task of selecting the best five starting players for the Chicago Bulls basketball team for the upcoming season while staying within a budget of USD 118 million for player contracts. I started by obtaining NBA player data for the past season and cleaning it up by removing unnecessary columns and missing values.
+
+Using visualizations, I explored the data to gain insights into the relationships between different variables and player performance. I then performed a multiple linear regression analysis to create a model that could predict a player's score based a model that was built for a team on their performance statistics. Based on this model, I identified the players who were likely to score the highest and chose the best player for each position while considering their expected points, salaries and basketball background domian knowledge.
+
+The following players were selected for the Chicago Bulls basketball team.
+- Eric Bledsoe as the Point Guard
+- Jimmy Butler as the Shooting Guard 
+- Khris Middleton as the Small Forward 
+- Pascal Siakam as the Power Forward
+- Anthony Davis as the Center 
+
+I am confident that these players will perform well on the court and help improve the team's ranking in the next season.
+
+
+# 7. Reference List
+
+1. Shea SM, Baker CE. Basketball analytics: Objective and efficient strategies for understanding how teams win. Lake St. Louis, MO: Advanced Metrics; 2013. 
+
+2. Oliver D. Basketball on paper: Rules and tools for performance analysis. Washington, D.C.: Potomac Books, Inc.; 2011. 
+
+3. These are the 2018/19 salaries of Chicago Bulls players [Internet]. HoopsHype; [cited 2023 May 9]. Available from: https://hoopshype.com/salaries/chicago_bulls/2018-2019/ 
+
